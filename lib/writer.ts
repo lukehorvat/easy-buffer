@@ -84,17 +84,6 @@ export class BufferWriter {
     return this;
   }
 
-  writeMap<T>(
-    items: T[],
-    mapper: (writer: this, item: T, index: number) => void
-  ): this {
-    items.forEach((item, index) => {
-      mapper(this, item, index);
-    });
-
-    return this;
-  }
-
   offset(offset: number, absolute?: boolean): this {
     offset = absolute
       ? offset >= 0

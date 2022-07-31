@@ -171,15 +171,6 @@ export class BufferReader {
     return value as ReadableValue<Type>;
   }
 
-  readMap<T>(mapper: (reader: this, index: number) => T): T[] {
-    const items = [];
-    let index = 0;
-    while (this.bufferRemaining().length > 0) {
-      items.push(mapper(this, index++));
-    }
-    return items;
-  }
-
   offset(offset: number, absolute?: boolean): this {
     offset = absolute
       ? offset >= 0
