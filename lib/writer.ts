@@ -1,14 +1,32 @@
 import { Writable } from './bufferable';
 
+/**
+ * A class that facilitates easy writing of buffers.
+ */
 export class BufferWriter {
   private _buffer: Buffer;
   private _offset: number;
 
+  /**
+   * Create a new `BufferWriter` instance.
+   *
+   * The current write offset will automatically default to 0, since no data
+   * has been written to the buffer yet.
+   */
   constructor() {
     this._buffer = Buffer.alloc(0);
     this._offset = 0;
   }
 
+  /**
+   * Write a value to the buffer at the current write offset, with the format
+   * of the value being determined by the specified `writable` configuration.
+   *
+   * The current write offset will be auto-incremented by the byte length of
+   * the value that was written.
+   *
+   * Returns the `BufferWriter` instance so you can chain further calls.
+   */
   write(writable: Writable): this {
     const valueBuffer = (() => {
       switch (writable.type) {
@@ -84,6 +102,18 @@ export class BufferWriter {
     return this;
   }
 
+  /**
+   * Increment/decrement the current write offset by the relative amount
+   * specified by `offset`. If `absolute` is `true`, `offset` will be treated
+   * as an exact byte position (i.e. not relative).
+   *
+   * If the specified `offset` extends beyond the current bounds of the buffer
+   * (either the start or the end), the buffer will be automatically zero-padded
+   * from the boundary of the buffer to the new offset. This is by design, but
+   * might not be to everyone's taste, so **be careful**!
+   *
+   * Returns the `BufferWriter` instance so you can chain further calls.
+   */
   offset(offset: number, absolute?: boolean): this {
     offset = absolute
       ? offset >= 0
@@ -110,6 +140,9 @@ export class BufferWriter {
     return this;
   }
 
+  /**
+   * Get the buffer that has been written so far.
+   */
   buffer(): Buffer {
     return Buffer.concat([this._buffer]);
   }

@@ -1,14 +1,30 @@
 import { Readable, ReadableValue } from './bufferable';
 
+/**
+ * A class that facilitates easy reading of buffers.
+ */
 export class BufferReader {
   private _buffer: Buffer;
   private _offset: number;
 
+  /**
+   * Create a new `BufferReader` instance from the specified `buffer`.
+   *
+   * The current read offset will automatically default to 0 (i.e. the
+   * position of the first byte in the buffer).
+   */
   constructor(buffer: Buffer) {
     this._buffer = buffer;
     this._offset = 0;
   }
 
+  /**
+   * Read a value from the buffer at the current read offset, with the format
+   * of the value being determined by the specified `readable` configuration.
+   *
+   * The current read offset will be auto-incremented by the byte length of the
+   * value that was read.
+   */
   read<R extends Readable, Type extends R['type']>(
     readable: R
   ): ReadableValue<Type> {
@@ -171,6 +187,16 @@ export class BufferReader {
     return value as ReadableValue<Type>;
   }
 
+  /**
+   * Increment/decrement the current read offset by the relative amount specified
+   * by `offset`. If `absolute` is `true`, `offset` will be treated as an exact
+   * byte position (i.e. not relative).
+   *
+   * If the specified `offset` extends beyond the bounds of the buffer (either
+   * the start or the end), an error will be thrown.
+   *
+   * Returns the `BufferReader` instance so you can chain further calls.
+   */
   offset(offset: number, absolute?: boolean): this {
     offset = absolute
       ? offset >= 0
@@ -186,6 +212,10 @@ export class BufferReader {
     return this;
   }
 
+  /**
+   * Get the remaining portion of the buffer that hasn't been read yet (i.e.
+   * beyond the current read offset).
+   */
   bufferRemaining(): Buffer {
     return Buffer.concat([this._buffer.subarray(this._offset)]);
   }

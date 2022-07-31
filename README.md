@@ -164,15 +164,15 @@ Get the buffer that has been written so far.
 
 ### Readable
 
-A [Bufferable](#bufferable) without a `value` property.
+An object literal representing a value to be read from a buffer. Essentially, a [Bufferable](#bufferable) without a `value` property.
 
 ### Writable
 
-A [Bufferable](#bufferable) without a `length` property.
+An object literal representing a value to be written to a buffer. Essentially, a [Bufferable](#bufferable) without a `length` property.
 
 ### Bufferable
 
-An object literal representing a value in the buffer that can be read or written.
+An object literal representing a value to be read from or written to a buffer.
 
 The structure of the object differs depending on what the `type` property has been set to.
 
