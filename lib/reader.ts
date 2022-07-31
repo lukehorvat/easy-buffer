@@ -188,6 +188,25 @@ export class BufferReader {
   }
 
   /**
+   * Read multiple values from the buffer, starting at the current read offset.
+   *
+   * The specified `callbackFn` function will be called continuously until the
+   * end of the buffer is reached. Therefore, please ensure that it reads one
+   * or more values from the buffer to avoid it being called infinitely. The
+   * function can return a value of your choosing.
+   *
+   * Returns all of the return values of `callbackFn` as an array.
+   */
+  readArray<T>(callbackFn: (reader: this, index: number) => T): T[] {
+    const items = [];
+    let index = 0;
+    while (this.bufferRemaining().length > 0) {
+      items.push(callbackFn(this, index++));
+    }
+    return items;
+  }
+
+  /**
    * Increment/decrement the current read offset by the relative amount specified
    * by `offset`. If `absolute` is `true`, `offset` will be treated as an exact
    * byte position (i.e. not relative).

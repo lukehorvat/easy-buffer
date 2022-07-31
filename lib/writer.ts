@@ -103,6 +103,22 @@ export class BufferWriter {
   }
 
   /**
+   * Write multiple values to the buffer, starting at the current write offset.
+   *
+   * The specified `callbackFn` function will be called for each item in `array`,
+   * allowing you to write items to the buffer sequentially.
+   *
+   * Returns the `BufferWriter` instance so you can chain further calls.
+   */
+  writeArray<T>(
+    array: T[],
+    callbackFn: (writer: this, item: T, index: number) => void
+  ): this {
+    array.forEach((item, index) => callbackFn(this, item, index));
+    return this;
+  }
+
+  /**
    * Increment/decrement the current write offset by the relative amount
    * specified by `offset`. If `absolute` is `true`, `offset` will be treated
    * as an exact byte position (i.e. not relative).

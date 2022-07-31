@@ -7,6 +7,7 @@ Yes, yet another [Buffer](https://nodejs.org/api/buffer.html) wrapper library. U
 - All reads go through a single `read` method (i.e. no `readInt8`, `readUInt32LE`, etc) and all writes through a single `write` method.
 - When reading, portions of the buffer can be skipped via an `offset` method and then followed up with a chained `read` call.
 - When writing, portions of the buffer can be automatically zero-padded via an `offset` method.
+- Provides convenience methods for reading and writing arrays, `readArray` and `writeArray`.
 
 ## Installation
 
@@ -73,6 +74,27 @@ const b = reader.read({ type: 'StringNT', encoding: 'ascii' });
 const c = reader.read({ type: 'Buffer', length: 3 });
 ```
 
+#### readArray(callbackFn: (reader: [BufferReader](#bufferreader), index: number) => T): T[]
+
+Read multiple values from the buffer, starting at the current read offset.
+
+The specified `callbackFn` function will be called continuously until the end of the buffer is reached. Therefore, please ensure that it reads one or more values from the buffer to avoid it being called infinitely. The function can return a value of your choosing (custom type `T`).
+
+Returns all of the return values of `callbackFn` as an array (`T[]`).
+
+Example:
+
+```js
+const buffer = Buffer.from([0x01, 0x02, 0x03]);
+const reader = new BufferReader(buffer);
+const items = reader.readArray(() => {
+  return { id: reader.read({ type: 'Int8' }) };
+});
+console.log(items); // = [{ id: 1 }, { id: 2 }, { id: 3 }]
+```
+
+In essence, this method is somewhat analogous to [`Array.prototype.map()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map).
+
 #### offset(offset: number, absolute?: boolean): [BufferReader](#bufferreader)
 
 Increment/decrement the current read offset by the relative amount specified by `offset`. If `absolute` is `true`, `offset` will be treated as an exact byte position (i.e. not relative).
@@ -133,6 +155,26 @@ writer.write({ type: 'StringNT', value: 'hello', encoding: 'base64' });
 writer.write({ type: 'Buffer', value: Buffer.from([0x01, 0x02, 0x03]) });
 writer.write({ type: 'Int8', value: 7 }).write({ type: 'String', value: 'hi' });
 ```
+
+#### writeArray(array: T[], callbackFn: (writer: [BufferWriter](#bufferwriter), item: T, index: number) => void): [BufferWriter](#bufferwriter)
+
+Write multiple values to the buffer, starting at the current write offset.
+
+The specified `callbackFn` function will be called for each item in `array`, allowing you to write items to the buffer sequentially.
+
+Returns the `BufferWriter` instance so you can chain further calls.
+
+Example:
+
+```js
+const writer = new BufferWriter();
+writer.writeArray([1, 2, 3], (_, item) => {
+  writer.write({ type: 'Int8', value: item });
+});
+console.log(writer.buffer()); // = <Buffer 01 02 03>
+```
+
+In essence, this method is somewhat analogous to [`Array.prototype.map()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map).
 
 #### offset(offset: number, absolute?: boolean): [BufferWriter](#bufferwriter)
 

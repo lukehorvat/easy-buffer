@@ -86,6 +86,33 @@ describe('BufferReader', () => {
     ).toThrowError('Length out of bounds.');
   });
 
+  test('read / write arrays', () => {
+    const writer = new BufferWriter();
+    writer.writeArray(
+      [
+        { key: 'a', value: 3 },
+        { key: 'b', value: 2 },
+        { key: 'c', value: 1 },
+      ],
+      (_, item) => {
+        writer.write({ type: 'StringNT', value: item.key });
+        writer.write({ type: 'Int8', value: item.value });
+      }
+    );
+
+    const reader = new BufferReader(writer.buffer());
+    const items = reader.readArray(() => {
+      const key = reader.read({ type: 'StringNT' });
+      const value = reader.read({ type: 'Int8' });
+      return { key, value };
+    });
+    expect(items).toEqual([
+      { key: 'a', value: 3 },
+      { key: 'b', value: 2 },
+      { key: 'c', value: 1 },
+    ]);
+  });
+
   test('read offset (in bounds)', () => {
     const buffer = new BufferWriter()
       .write({
