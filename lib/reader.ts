@@ -81,7 +81,17 @@ export class BufferReader {
   }
 
   offset(offset: number, absolute?: boolean): this {
-    this.readOffset = absolute ? offset : this.readOffset + offset;
+    const absoluteOffset = absolute
+      ? offset >= 0
+        ? offset
+        : this.buffer.length + offset
+      : this.readOffset + offset;
+
+    if (absoluteOffset < 0 || absoluteOffset >= this.buffer.length) {
+      throw new Error('Offset out of bounds.');
+    }
+
+    this.readOffset = absoluteOffset;
     return this;
   }
 

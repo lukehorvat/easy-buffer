@@ -61,14 +61,27 @@ export class BufferWriter {
   }
 
   offset(offset: number, absolute?: boolean): this {
-    this.writeOffset = absolute ? offset : this.writeOffset + offset;
+    const absoluteOffset = absolute
+      ? offset >= 0
+        ? offset
+        : this.buffer.length + offset
+      : this.writeOffset + offset;
 
-    // TODO: what to do if < 0?
-    if (this.writeOffset > this.buffer.length)
+    if (absoluteOffset < 0) {
+      this.buffer = Buffer.concat([
+        Buffer.alloc(Math.abs(absoluteOffset)),
+        this.buffer,
+      ]);
+      this.writeOffset = 0;
+    } else if (absoluteOffset > this.buffer.length) {
       this.buffer = Buffer.concat([
         this.buffer,
-        Buffer.alloc(this.writeOffset - this.buffer.length),
+        Buffer.alloc(absoluteOffset - this.buffer.length),
       ]);
+      this.writeOffset = this.buffer.length;
+    } else {
+      this.writeOffset = absoluteOffset;
+    }
 
     return this;
   }
