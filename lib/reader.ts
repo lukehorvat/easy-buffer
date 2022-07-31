@@ -1,4 +1,4 @@
-import { BufferableWithoutValue, BufferableValue } from './bufferable';
+import { Readable, ReadableValue } from './bufferable';
 
 export class BufferReader {
   private buffer: Buffer;
@@ -9,11 +9,11 @@ export class BufferReader {
     this.readOffset = 0;
   }
 
-  read<B extends BufferableWithoutValue, Type extends B['type']>(
-    bufferable: B
-  ): BufferableValue<Type> {
+  read<R extends Readable, Type extends R['type']>(
+    readable: R
+  ): ReadableValue<Type> {
     const { value, bytesRead } = (() => {
-      switch (bufferable.type) {
+      switch (readable.type) {
         case 'UInt8': {
           return {
             value: this.remainingBuffer.readUInt8(),
@@ -33,35 +33,42 @@ export class BufferReader {
           };
         }
         case 'String': {
-          if (bufferable.nullTerminated) {
-            let bytesRead = 0;
+          return {
+            value: this.remainingBuffer
+              .subarray(0, readable.length)
+              .toString(readable.encoding),
+            bytesRead: readable.length ?? this.remainingBuffer.length,
+          };
+        }
+        case 'StringNT': {
+          let bytesRead = 0;
 
-            while (bytesRead < this.remainingBuffer.length) {
-              if (this.remainingBuffer[bytesRead] === 0x00) {
-                return {
-                  value: this.remainingBuffer
-                    .slice(0, bytesRead)
-                    .toString(bufferable.encoding),
-                  bytesRead: ++bytesRead,
-                };
-              }
-              bytesRead++;
+          while (bytesRead < this.remainingBuffer.length) {
+            if (this.remainingBuffer[bytesRead] === 0x00) {
+              return {
+                value: this.remainingBuffer
+                  .subarray(0, bytesRead)
+                  .toString(readable.encoding),
+                bytesRead: ++bytesRead,
+              };
             }
-
-            throw new Error('Null-terminator not found.');
-          } else {
-            return {
-              value: this.remainingBuffer.toString(bufferable.encoding),
-              bytesRead: this.remainingBuffer.length,
-            };
+            bytesRead++;
           }
+
+          throw new Error('Null-terminator not found.');
+        }
+        case 'Buffer': {
+          return {
+            value: this.remainingBuffer.subarray(0, readable.length),
+            bytesRead: readable.length ?? this.remainingBuffer.length,
+          };
         }
       }
     })();
 
     this.readOffset += bytesRead;
 
-    return value as BufferableValue<Type>;
+    return value as ReadableValue<Type>;
   }
 
   readMap<T>(mapper: (reader: this, index: number) => T): T[] {

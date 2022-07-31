@@ -1,4 +1,4 @@
-import { Bufferable } from './bufferable';
+import { Writable } from './bufferable';
 
 export class BufferWriter {
   buffer: Buffer;
@@ -9,29 +9,32 @@ export class BufferWriter {
     this.writeOffset = 0;
   }
 
-  write(bufferable: Bufferable): this {
+  write(writable: Writable): this {
     const valueBuffer = (() => {
-      switch (bufferable.type) {
+      switch (writable.type) {
         case 'UInt8': {
           const buffer = Buffer.alloc(1);
-          buffer.writeUInt8(bufferable.value);
+          buffer.writeUInt8(writable.value);
           return buffer;
         }
         case 'UInt16LE': {
           const buffer = Buffer.alloc(2);
-          buffer.writeUInt16LE(bufferable.value);
+          buffer.writeUInt16LE(writable.value);
           return buffer;
         }
         case 'UInt32LE': {
           const buffer = Buffer.alloc(4);
-          buffer.writeUInt32LE(bufferable.value);
+          buffer.writeUInt32LE(writable.value);
           return buffer;
         }
         case 'String': {
-          return Buffer.from(
-            bufferable.value + (bufferable.nullTerminated ? '\0' : ''),
-            bufferable.encoding
-          );
+          return Buffer.from(writable.value, writable.encoding);
+        }
+        case 'StringNT': {
+          return Buffer.from(writable.value + '\0', writable.encoding);
+        }
+        case 'Buffer': {
+          return writable.value;
         }
       }
     })();

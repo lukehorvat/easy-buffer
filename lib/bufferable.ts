@@ -17,12 +17,22 @@ export type Bufferable =
       type: 'String';
       value: string;
       encoding?: BufferEncoding;
-      nullTerminated?: boolean;
+      length?: number;
+    }
+  | {
+      type: 'StringNT';
+      value: string;
+      encoding?: BufferEncoding;
+    }
+  | {
+      type: 'Buffer';
+      value: Buffer;
+      length?: number;
     };
 
-export type BufferableWithoutValue = DistributiveOmit<Bufferable, 'value'>;
-
-export type BufferableValue<Type extends Bufferable['type']> = Extract<
+export type Writable = DistributiveOmit<Bufferable, 'length'>;
+export type Readable = DistributiveOmit<Bufferable, 'value'>;
+export type ReadableValue<Type extends Bufferable['type']> = Extract<
   Bufferable,
   { type: Type }
 >['value'];
