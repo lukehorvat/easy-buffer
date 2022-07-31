@@ -6,7 +6,8 @@
     "module": "CommonJS",
     "esModuleInterop": true,
     "strict": true,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "declaration": true
   },
   "include": ["lib"],
   "exclude": ["node_modules"]
