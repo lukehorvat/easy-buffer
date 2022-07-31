@@ -1,6 +1,6 @@
 import { BufferReader, BufferWriter } from '../lib';
 
-describe('BufferReader', () => {
+describe('easy-buffer', () => {
   test('read / write', () => {
     const writer = new BufferWriter();
     expect(writer.buffer().length).toBe(0);
