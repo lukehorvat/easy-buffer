@@ -2,7 +2,7 @@
   "name": "easy-buffer",
   "private": true,
   "version": "0.0.0",
-  "description": "TODO",
+  "description": "Easily read and write Node.js buffers.",
   "author": "Luke Horvat",
   "license": "MIT",
   "repository": "lukehorvat/easy-buffer",
