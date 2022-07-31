@@ -37,6 +37,27 @@ describe('BufferReader', () => {
     expect(reader.remainingBuffer.length).toBe(0);
   });
 
+  test.only('read (out of bounds)', () => {
+    expect(() =>
+      new BufferReader(Buffer.alloc(0)).read({ type: 'UInt8' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(1)).read({ type: 'UInt16LE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(3)).read({ type: 'UInt32LE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.from('cool')).read({ type: 'String', length: 5 })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.from('cool')).read({ type: 'StringNT' })
+    ).toThrowError('Length out of bounds (null-terminator not found).');
+    expect(() =>
+      new BufferReader(Buffer.alloc(3)).read({ type: 'Buffer', length: 4 })
+    ).toThrowError('Length out of bounds.');
+  });
+
   test('read offset (in bounds)', () => {
     const buffer = new BufferWriter().write({
       type: 'String',

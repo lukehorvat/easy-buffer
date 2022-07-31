@@ -12,61 +12,84 @@ export class BufferReader {
   read<R extends Readable, Type extends R['type']>(
     readable: R
   ): ReadableValue<Type> {
-    const { value, bytesRead } = (() => {
+    const { value, length } = (() => {
       switch (readable.type) {
         case 'UInt8': {
+          const length = 1;
+          if (length > this.remainingBuffer.length) {
+            throw new Error('Length out of bounds.');
+          }
+
           return {
             value: this.remainingBuffer.readUInt8(),
-            bytesRead: 1,
+            length,
           };
         }
         case 'UInt16LE': {
+          const length = 2;
+          if (length > this.remainingBuffer.length) {
+            throw new Error('Length out of bounds.');
+          }
+
           return {
             value: this.remainingBuffer.readUInt16LE(),
-            bytesRead: 2,
+            length,
           };
         }
         case 'UInt32LE': {
+          const length = 4;
+          if (length > this.remainingBuffer.length) {
+            throw new Error('Length out of bounds.');
+          }
+
           return {
             value: this.remainingBuffer.readUInt32LE(),
-            bytesRead: 4,
+            length,
           };
         }
         case 'String': {
+          if ((readable.length ?? 0) > this.remainingBuffer.length) {
+            throw new Error('Length out of bounds.');
+          }
+
           return {
             value: this.remainingBuffer
               .subarray(0, readable.length)
               .toString(readable.encoding),
-            bytesRead: readable.length ?? this.remainingBuffer.length,
+            length: readable.length ?? this.remainingBuffer.length,
           };
         }
         case 'StringNT': {
-          let bytesRead = 0;
+          let length = 0;
 
-          while (bytesRead < this.remainingBuffer.length) {
-            if (this.remainingBuffer[bytesRead] === 0x00) {
+          while (length < this.remainingBuffer.length) {
+            if (this.remainingBuffer[length] === 0x00) {
               return {
                 value: this.remainingBuffer
-                  .subarray(0, bytesRead)
+                  .subarray(0, length)
                   .toString(readable.encoding),
-                bytesRead: ++bytesRead,
+                length: ++length,
               };
             }
-            bytesRead++;
+            length++;
           }
 
-          throw new Error('Null-terminator not found.');
+          throw new Error('Length out of bounds (null-terminator not found).');
         }
         case 'Buffer': {
+          if ((readable.length ?? 0) > this.remainingBuffer.length) {
+            throw new Error('Length out of bounds.');
+          }
+
           return {
             value: this.remainingBuffer.subarray(0, readable.length),
-            bytesRead: readable.length ?? this.remainingBuffer.length,
+            length: readable.length ?? this.remainingBuffer.length,
           };
         }
       }
     })();
 
-    this.readOffset += bytesRead;
+    this.readOffset += length;
 
     return value as ReadableValue<Type>;
   }
