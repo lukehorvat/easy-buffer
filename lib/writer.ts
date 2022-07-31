@@ -12,9 +12,19 @@ export class BufferWriter {
   write(writable: Writable): this {
     const valueBuffer = (() => {
       switch (writable.type) {
+        case 'Int8': {
+          const buffer = Buffer.alloc(1);
+          buffer.writeInt8(writable.value);
+          return buffer;
+        }
         case 'UInt8': {
           const buffer = Buffer.alloc(1);
           buffer.writeUInt8(writable.value);
+          return buffer;
+        }
+        case 'Int16LE': {
+          const buffer = Buffer.alloc(2);
+          buffer.writeInt16LE(writable.value);
           return buffer;
         }
         case 'UInt16LE': {
@@ -22,9 +32,34 @@ export class BufferWriter {
           buffer.writeUInt16LE(writable.value);
           return buffer;
         }
+        case 'Int16BE': {
+          const buffer = Buffer.alloc(2);
+          buffer.writeInt16BE(writable.value);
+          return buffer;
+        }
+        case 'UInt16BE': {
+          const buffer = Buffer.alloc(2);
+          buffer.writeUInt16BE(writable.value);
+          return buffer;
+        }
+        case 'Int32LE': {
+          const buffer = Buffer.alloc(4);
+          buffer.writeInt32LE(writable.value);
+          return buffer;
+        }
         case 'UInt32LE': {
           const buffer = Buffer.alloc(4);
           buffer.writeUInt32LE(writable.value);
+          return buffer;
+        }
+        case 'Int32BE': {
+          const buffer = Buffer.alloc(4);
+          buffer.writeInt32BE(writable.value);
+          return buffer;
+        }
+        case 'UInt32BE': {
+          const buffer = Buffer.alloc(4);
+          buffer.writeUInt32BE(writable.value);
           return buffer;
         }
         case 'String': {

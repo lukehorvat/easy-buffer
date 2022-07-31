@@ -2,7 +2,15 @@ import { DistributiveOmit } from './util';
 
 export type Bufferable =
   | {
+      type: 'Int8';
+      value: number;
+    }
+  | {
       type: 'UInt8';
+      value: number;
+    }
+  | {
+      type: 'Int16LE';
       value: number;
     }
   | {
@@ -10,7 +18,27 @@ export type Bufferable =
       value: number;
     }
   | {
+      type: 'Int16BE';
+      value: number;
+    }
+  | {
+      type: 'UInt16BE';
+      value: number;
+    }
+  | {
+      type: 'Int32LE';
+      value: number;
+    }
+  | {
       type: 'UInt32LE';
+      value: number;
+    }
+  | {
+      type: 'Int32BE';
+      value: number;
+    }
+  | {
+      type: 'UInt32BE';
       value: number;
     }
   | {

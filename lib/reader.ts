@@ -14,6 +14,17 @@ export class BufferReader {
   ): ReadableValue<Type> {
     const { value, length } = (() => {
       switch (readable.type) {
+        case 'Int8': {
+          const length = 1;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readInt8(),
+            length,
+          };
+        }
         case 'UInt8': {
           const length = 1;
           if (length > this.bufferRemaining().length) {
@@ -22,6 +33,17 @@ export class BufferReader {
 
           return {
             value: this.bufferRemaining().readUInt8(),
+            length,
+          };
+        }
+        case 'Int16LE': {
+          const length = 2;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readInt16LE(),
             length,
           };
         }
@@ -36,6 +58,39 @@ export class BufferReader {
             length,
           };
         }
+        case 'Int16BE': {
+          const length = 2;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readInt16BE(),
+            length,
+          };
+        }
+        case 'UInt16BE': {
+          const length = 2;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readUInt16BE(),
+            length,
+          };
+        }
+        case 'Int32LE': {
+          const length = 4;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readInt32LE(),
+            length,
+          };
+        }
         case 'UInt32LE': {
           const length = 4;
           if (length > this.bufferRemaining().length) {
@@ -44,6 +99,28 @@ export class BufferReader {
 
           return {
             value: this.bufferRemaining().readUInt32LE(),
+            length,
+          };
+        }
+        case 'Int32BE': {
+          const length = 4;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readInt32BE(),
+            length,
+          };
+        }
+        case 'UInt32BE': {
+          const length = 4;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readUInt32BE(),
             length,
           };
         }
