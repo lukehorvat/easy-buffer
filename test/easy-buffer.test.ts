@@ -37,75 +37,124 @@ describe('BufferReader', () => {
     expect(reader.remainingBuffer.length).toBe(0);
   });
 
-  test('read offset', () => {
+  test('read offset (in bounds)', () => {
     const buffer = new BufferWriter().write({
       type: 'String',
-      value: 'abcdefghijklmnopqrstuvwxyz',
+      value: 'hello world!',
     }).buffer;
     const reader = new BufferReader(buffer);
-    expect(reader.remainingBuffer.length).toBe(26);
-    reader.offset(10);
-    expect(reader.remainingBuffer.length).toBe(16);
-    reader.offset(5);
-    expect(reader.remainingBuffer.length).toBe(11);
-    reader.offset(-2);
-    expect(reader.remainingBuffer.length).toBe(13);
-    reader.offset(6, true);
-    expect(reader.remainingBuffer.length).toBe(20);
-    reader.offset(0);
-    expect(reader.remainingBuffer.length).toBe(20);
-    reader.offset(0, true);
-    expect(reader.remainingBuffer.length).toBe(26);
-    reader.offset(-2, true);
-    expect(reader.remainingBuffer.length).toBe(2);
+    expect(reader.read({ type: 'String', length: 4 })).toBe('hell');
 
-    expect(() => reader.offset(-100)).toThrowError('Offset out of bounds.');
-    expect(() => reader.offset(-100, true)).toThrowError(
-      'Offset out of bounds.'
-    );
-    expect(() => reader.offset(100)).toThrowError('Offset out of bounds.');
-    expect(() => reader.offset(100, true)).toThrowError(
+    reader.offset(2);
+    expect(reader.read({ type: 'String', length: 5 })).toBe('world');
+
+    reader.offset(0);
+    expect(reader.read({ type: 'String', length: 1 })).toBe('!');
+
+    reader.offset(0, true);
+    expect(reader.read({ type: 'String', length: 5 })).toBe('hello');
+
+    reader.offset(-2);
+    expect(reader.read({ type: 'String', length: 2 })).toBe('lo');
+
+    reader.offset(-1, true);
+    expect(reader.read({ type: 'String', length: 1 })).toBe('!');
+  });
+
+  test('read offset (out of bounds)', () => {
+    const buffer = new BufferWriter().write({
+      type: 'String',
+      value: 'cool!',
+    }).buffer;
+    const reader = new BufferReader(buffer);
+    expect(reader.read({ type: 'String', length: 4 })).toBe('cool');
+    expect(() => reader.offset(10)).toThrowError('Offset out of bounds.');
+    expect(() => reader.offset(-10)).toThrowError('Offset out of bounds.');
+    expect(() => reader.offset(10, true)).toThrowError('Offset out of bounds.');
+    expect(() => reader.offset(-10, true)).toThrowError(
       'Offset out of bounds.'
     );
   });
 
-  test('write offset', () => {
-    const writer = new BufferWriter(); // offset = 0
-    writer.write({ type: 'StringNT', value: 'cool' }); // offset = 5
-    writer.offset(5); // offset = 10
-    writer.write({ type: 'UInt8', value: 18 }); // offset = 11
-    writer.offset(2); // offset = 13
-    writer.offset(-5); // offset = 8
-    writer.write({ type: 'UInt8', value: 56 }); // offset = 9
-    writer.offset(6, true); // offset = 6
-    writer.write({ type: 'UInt8', value: 9 }); // offset = 7
-    writer.offset(0); // offset = 7
-    writer.write({ type: 'UInt8', value: 40 }); // offset = 8
-    writer.offset(0, true); // offset = 0
-    writer.write({ type: 'UInt8', value: 35 }); // offset = 1
-    writer.offset(-1, true); // offset = 12
-    writer.write({ type: 'UInt8', value: 88 }); // offset = 13
-    writer.offset(-20, true); // offset = 0
-    writer.write({ type: 'UInt16LE', value: 123 }); // offset = 1
-    writer.offset(2); // offset = 3
-    writer.write({ type: 'UInt16LE', value: 321 }); // offset = 5
+  test('write offset (in bounds)', () => {
+    const writer = new BufferWriter();
+
+    writer.write({ type: 'String', value: 'hello world!' });
+    expect(new BufferReader(writer.buffer).read({ type: 'String' })).toBe(
+      'hello world!'
+    );
+
+    writer.offset(0);
+    writer.write({ type: 'String', value: '?' });
+    expect(new BufferReader(writer.buffer).read({ type: 'String' })).toBe(
+      'hello world!?'
+    );
+
+    writer.offset(-9);
+    writer.write({ type: 'String', value: 'y' });
+    expect(new BufferReader(writer.buffer).read({ type: 'String' })).toBe(
+      'helly world!?'
+    );
+
+    writer.offset(-1, true);
+    writer.write({ type: 'String', value: '!' });
+    expect(new BufferReader(writer.buffer).read({ type: 'String' })).toBe(
+      'helly world!!'
+    );
+
+    writer.offset(0, true);
+    writer.write({ type: 'String', value: 'j' });
+    expect(new BufferReader(writer.buffer).read({ type: 'String' })).toBe(
+      'jelly world!!'
+    );
+
+    writer.offset(3);
+    writer.write({ type: 'String', value: 'o' });
+    expect(new BufferReader(writer.buffer).read({ type: 'String' })).toBe(
+      'jello world!!'
+    );
+
+    writer.offset(7, true);
+    writer.write({ type: 'String', value: 'alrus' });
+    expect(new BufferReader(writer.buffer).read({ type: 'String' })).toBe(
+      'jello walrus!'
+    );
+  });
+
+  test('write offset (out of bounds)', () => {
+    const writer = new BufferWriter();
+
+    writer.write({ type: 'String', value: 'cool' });
+    expect(writer.buffer.length).toBe(4);
+
+    writer.offset(3);
+    expect(writer.buffer.length).toBe(7);
+
+    writer.write({ type: 'String', value: 'wow' });
+    expect(writer.buffer.length).toBe(10);
+
+    writer.offset(-3);
+    expect(writer.buffer.length).toBe(10);
+
+    writer.offset(-10);
+    expect(writer.buffer.length).toBe(13);
+
+    writer.write({ type: 'String', value: '!' });
+    expect(writer.buffer.length).toBe(13);
+
+    writer.offset(15, true);
+    expect(writer.buffer.length).toBe(15);
+
+    writer.offset(-20, true);
     expect(writer.buffer.length).toBe(20);
 
     const reader = new BufferReader(writer.buffer);
-    expect(reader.read({ type: 'UInt16LE' })).toBe(123);
+    expect(reader.read({ type: 'Buffer', length: 5 })).toEqual(Buffer.alloc(5));
+    expect(reader.read({ type: 'String', length: 1 })).toBe('!');
     expect(reader.read({ type: 'Buffer', length: 2 })).toEqual(Buffer.alloc(2));
-    expect(reader.read({ type: 'UInt16LE' })).toBe(321);
-    expect(reader.read({ type: 'Buffer', length: 1 })).toEqual(Buffer.alloc(1));
-    expect(reader.read({ type: 'UInt8' })).toBe(35);
-    expect(reader.read({ type: 'StringNT' })).toBe('ool');
-    expect(reader.read({ type: 'Buffer', length: 1 })).toEqual(Buffer.alloc(1));
-    expect(reader.read({ type: 'UInt8' })).toBe(9);
-    expect(reader.read({ type: 'UInt8' })).toBe(40);
-    expect(reader.read({ type: 'UInt8' })).toBe(56);
-    expect(reader.read({ type: 'Buffer', length: 1 })).toEqual(Buffer.alloc(1));
-    expect(reader.read({ type: 'UInt8' })).toBe(18);
-    expect(reader.read({ type: 'Buffer', length: 1 })).toEqual(Buffer.alloc(1));
-    expect(reader.read({ type: 'UInt8' })).toBe(88);
-    expect(reader.remainingBuffer.length).toBe(0);
+    expect(reader.read({ type: 'String', length: 4 })).toBe('cool');
+    expect(reader.read({ type: 'Buffer', length: 3 })).toEqual(Buffer.alloc(3));
+    expect(reader.read({ type: 'String', length: 3 })).toBe('wow');
+    expect(reader.read({ type: 'Buffer', length: 2 })).toEqual(Buffer.alloc(2));
   });
 });
