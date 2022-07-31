@@ -1,12 +1,12 @@
 import { Readable, ReadableValue } from './bufferable';
 
 export class BufferReader {
-  private buffer: Buffer;
-  private readOffset: number;
+  private _buffer: Buffer;
+  private _offset: number;
 
   constructor(buffer: Buffer) {
-    this.buffer = buffer;
-    this.readOffset = 0;
+    this._buffer = buffer;
+    this._offset = 0;
   }
 
   read<R extends Readable, Type extends R['type']>(
@@ -16,56 +16,56 @@ export class BufferReader {
       switch (readable.type) {
         case 'UInt8': {
           const length = 1;
-          if (length > this.remainingBuffer.length) {
+          if (length > this.bufferRemaining().length) {
             throw new Error('Length out of bounds.');
           }
 
           return {
-            value: this.remainingBuffer.readUInt8(),
+            value: this.bufferRemaining().readUInt8(),
             length,
           };
         }
         case 'UInt16LE': {
           const length = 2;
-          if (length > this.remainingBuffer.length) {
+          if (length > this.bufferRemaining().length) {
             throw new Error('Length out of bounds.');
           }
 
           return {
-            value: this.remainingBuffer.readUInt16LE(),
+            value: this.bufferRemaining().readUInt16LE(),
             length,
           };
         }
         case 'UInt32LE': {
           const length = 4;
-          if (length > this.remainingBuffer.length) {
+          if (length > this.bufferRemaining().length) {
             throw new Error('Length out of bounds.');
           }
 
           return {
-            value: this.remainingBuffer.readUInt32LE(),
+            value: this.bufferRemaining().readUInt32LE(),
             length,
           };
         }
         case 'String': {
-          if ((readable.length ?? 0) > this.remainingBuffer.length) {
+          if ((readable.length ?? 0) > this.bufferRemaining().length) {
             throw new Error('Length out of bounds.');
           }
 
           return {
-            value: this.remainingBuffer
+            value: this.bufferRemaining()
               .subarray(0, readable.length)
               .toString(readable.encoding),
-            length: readable.length ?? this.remainingBuffer.length,
+            length: readable.length ?? this.bufferRemaining().length,
           };
         }
         case 'StringNT': {
           let length = 0;
 
-          while (length < this.remainingBuffer.length) {
-            if (this.remainingBuffer[length] === 0x00) {
+          while (length < this.bufferRemaining().length) {
+            if (this.bufferRemaining()[length] === 0x00) {
               return {
-                value: this.remainingBuffer
+                value: this.bufferRemaining()
                   .subarray(0, length)
                   .toString(readable.encoding),
                 length: ++length,
@@ -77,19 +77,19 @@ export class BufferReader {
           throw new Error('Length out of bounds (null-terminator not found).');
         }
         case 'Buffer': {
-          if ((readable.length ?? 0) > this.remainingBuffer.length) {
+          if ((readable.length ?? 0) > this.bufferRemaining().length) {
             throw new Error('Length out of bounds.');
           }
 
           return {
-            value: this.remainingBuffer.subarray(0, readable.length),
-            length: readable.length ?? this.remainingBuffer.length,
+            value: this.bufferRemaining().subarray(0, readable.length),
+            length: readable.length ?? this.bufferRemaining().length,
           };
         }
       }
     })();
 
-    this.readOffset += length;
+    this._offset += length;
 
     return value as ReadableValue<Type>;
   }
@@ -97,28 +97,28 @@ export class BufferReader {
   readMap<T>(mapper: (reader: this, index: number) => T): T[] {
     const items = [];
     let index = 0;
-    while (this.remainingBuffer.length > 0) {
+    while (this.bufferRemaining().length > 0) {
       items.push(mapper(this, index++));
     }
     return items;
   }
 
   offset(offset: number, absolute?: boolean): this {
-    const absoluteOffset = absolute
+    offset = absolute
       ? offset >= 0
         ? offset
-        : this.buffer.length + offset
-      : this.readOffset + offset;
+        : this._buffer.length + offset
+      : this._offset + offset;
 
-    if (absoluteOffset < 0 || absoluteOffset >= this.buffer.length) {
+    if (offset < 0 || offset >= this._buffer.length) {
       throw new Error('Offset out of bounds.');
     }
 
-    this.readOffset = absoluteOffset;
+    this._offset = offset;
     return this;
   }
 
-  get remainingBuffer() {
-    return this.buffer.subarray(this.readOffset);
+  bufferRemaining(): Buffer {
+    return Buffer.concat([this._buffer.subarray(this._offset)]);
   }
 }

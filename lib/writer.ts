@@ -1,12 +1,12 @@
 import { Writable } from './bufferable';
 
 export class BufferWriter {
-  buffer: Buffer;
-  private writeOffset: number;
+  private _buffer: Buffer;
+  private _offset: number;
 
   constructor() {
-    this.buffer = Buffer.alloc(0);
-    this.writeOffset = 0;
+    this._buffer = Buffer.alloc(0);
+    this._offset = 0;
   }
 
   write(writable: Writable): this {
@@ -39,12 +39,12 @@ export class BufferWriter {
       }
     })();
 
-    this.buffer = Buffer.concat([
-      this.buffer.subarray(0, this.writeOffset),
+    this._buffer = Buffer.concat([
+      this._buffer.subarray(0, this._offset),
       valueBuffer,
-      this.buffer.subarray(this.writeOffset + valueBuffer.length),
+      this._buffer.subarray(this._offset + valueBuffer.length),
     ]);
-    this.writeOffset += valueBuffer.length;
+    this._offset += valueBuffer.length;
 
     return this;
   }
@@ -61,28 +61,32 @@ export class BufferWriter {
   }
 
   offset(offset: number, absolute?: boolean): this {
-    const absoluteOffset = absolute
+    offset = absolute
       ? offset >= 0
         ? offset
-        : this.buffer.length + offset
-      : this.writeOffset + offset;
+        : this._buffer.length + offset
+      : this._offset + offset;
 
-    if (absoluteOffset < 0) {
-      this.buffer = Buffer.concat([
-        Buffer.alloc(Math.abs(absoluteOffset)),
-        this.buffer,
+    if (offset < 0) {
+      this._buffer = Buffer.concat([
+        Buffer.alloc(Math.abs(offset)),
+        this._buffer,
       ]);
-      this.writeOffset = 0;
-    } else if (absoluteOffset > this.buffer.length) {
-      this.buffer = Buffer.concat([
-        this.buffer,
-        Buffer.alloc(absoluteOffset - this.buffer.length),
+      this._offset = 0;
+    } else if (offset > this._buffer.length) {
+      this._buffer = Buffer.concat([
+        this._buffer,
+        Buffer.alloc(offset - this._buffer.length),
       ]);
-      this.writeOffset = this.buffer.length;
+      this._offset = this._buffer.length;
     } else {
-      this.writeOffset = absoluteOffset;
+      this._offset = offset;
     }
 
     return this;
+  }
+
+  buffer(): Buffer {
+    return Buffer.concat([this._buffer]);
   }
 }
