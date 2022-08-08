@@ -223,7 +223,7 @@ export class BufferReader {
         : this._buffer.length + offset
       : this._offset + offset;
 
-    if (offset < 0 || offset >= this._buffer.length) {
+    if (offset < 0 || offset > this._buffer.length) {
       throw new Error('Offset out of bounds.');
     }
 

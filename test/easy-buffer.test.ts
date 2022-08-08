@@ -132,6 +132,13 @@ describe('easy-buffer', () => {
     expect(reader.read({ type: 'String', length: 2 })).toBe('lo');
     reader.offset(-1, true);
     expect(reader.read({ type: 'String', length: 1 })).toBe('!');
+
+    // Should be able to set read offset to the end of the buffer,
+    // where technically no more bytes can be read.
+    expect(() => reader.offset(buffer.length, true)).not.toThrowError(
+      'Offset out of bounds.'
+    );
+    expect(reader.bufferRemaining().length).toBe(0);
   });
 
   test('read offset (out of bounds)', () => {
