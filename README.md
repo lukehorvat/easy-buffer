@@ -1,4 +1,4 @@
-# easy-buffer [![npm version](http://img.shields.io/npm/v/easy-buffer.svg?style=flat-square)](https://www.npmjs.org/package/easy-buffer) [![build status](https://img.shields.io/github/workflow/status/lukehorvat/easy-buffer/Build?style=flat-square)](https://github.com/lukehorvat/easy-buffer/actions/workflows/build.yml)
+# easy-buffer [![npm version](http://img.shields.io/npm/v/easy-buffer.svg?style=flat-square)](https://www.npmjs.org/package/easy-buffer) [![build status](https://img.shields.io/github/actions/workflow/status/lukehorvat/easy-buffer/build.yml?style=flat-square)](https://github.com/lukehorvat/easy-buffer/actions/workflows/build.yml)
 
 Easily read and write Node.js buffers. TypeScript and JavaScript supported!
 
