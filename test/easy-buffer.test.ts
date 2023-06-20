@@ -24,34 +24,50 @@ describe('easy-buffer', () => {
     expect(writer.buffer().length).toBe(22);
     writer.write({ type: 'UInt32BE', value: 579 });
     expect(writer.buffer().length).toBe(26);
+    writer.write({ type: 'FloatLE', value: 83147.32 });
+    expect(writer.buffer().length).toBe(30);
+    writer.write({ type: 'FloatBE', value: -65920.95 });
+    expect(writer.buffer().length).toBe(34);
+    writer.write({ type: 'DoubleLE', value: 244912.738 });
+    expect(writer.buffer().length).toBe(42);
+    writer.write({ type: 'DoubleBE', value: -508354.116 });
+    expect(writer.buffer().length).toBe(50);
     writer.write({ type: 'Buffer', value: Buffer.from([0x01, 0x02, 0x03]) });
-    expect(writer.buffer().length).toBe(29);
+    expect(writer.buffer().length).toBe(53);
     writer.write({ type: 'StringNT', value: 'hello' });
-    expect(writer.buffer().length).toBe(35);
+    expect(writer.buffer().length).toBe(59);
     writer.write({ type: 'String', value: 'world' });
-    expect(writer.buffer().length).toBe(40);
+    expect(writer.buffer().length).toBe(64);
 
     const reader = new BufferReader(writer.buffer());
-    expect(reader.bufferRemaining().length).toBe(40);
+    expect(reader.bufferRemaining().length).toBe(64);
     expect(reader.read({ type: 'Int8' })).toBe(-4);
-    expect(reader.bufferRemaining().length).toBe(39);
+    expect(reader.bufferRemaining().length).toBe(63);
     expect(reader.read({ type: 'UInt8' })).toBe(13);
-    expect(reader.bufferRemaining().length).toBe(38);
+    expect(reader.bufferRemaining().length).toBe(62);
     expect(reader.read({ type: 'Int16LE' })).toBe(-123);
-    expect(reader.bufferRemaining().length).toBe(36);
+    expect(reader.bufferRemaining().length).toBe(60);
     expect(reader.read({ type: 'UInt16LE' })).toBe(215);
-    expect(reader.bufferRemaining().length).toBe(34);
+    expect(reader.bufferRemaining().length).toBe(58);
     expect(reader.read({ type: 'Int16BE' })).toBe(-77);
-    expect(reader.bufferRemaining().length).toBe(32);
+    expect(reader.bufferRemaining().length).toBe(56);
     expect(reader.read({ type: 'UInt16BE' })).toBe(99);
-    expect(reader.bufferRemaining().length).toBe(30);
+    expect(reader.bufferRemaining().length).toBe(54);
     expect(reader.read({ type: 'Int32LE' })).toBe(-2045);
-    expect(reader.bufferRemaining().length).toBe(26);
+    expect(reader.bufferRemaining().length).toBe(50);
     expect(reader.read({ type: 'UInt32LE' })).toBe(1782);
-    expect(reader.bufferRemaining().length).toBe(22);
+    expect(reader.bufferRemaining().length).toBe(46);
     expect(reader.read({ type: 'Int32BE' })).toBe(-345);
-    expect(reader.bufferRemaining().length).toBe(18);
+    expect(reader.bufferRemaining().length).toBe(42);
     expect(reader.read({ type: 'UInt32BE' })).toBe(579);
+    expect(reader.bufferRemaining().length).toBe(38);
+    expect(reader.read({ type: 'FloatLE' })).toBeCloseTo(83147.32);
+    expect(reader.bufferRemaining().length).toBe(34);
+    expect(reader.read({ type: 'FloatBE' })).toBeCloseTo(-65920.95);
+    expect(reader.bufferRemaining().length).toBe(30);
+    expect(reader.read({ type: 'DoubleLE' })).toBeCloseTo(244912.738);
+    expect(reader.bufferRemaining().length).toBe(22);
+    expect(reader.read({ type: 'DoubleBE' })).toBeCloseTo(-508354.116);
     expect(reader.bufferRemaining().length).toBe(14);
     expect(reader.read({ type: 'Buffer', length: 3 })).toEqual(
       Buffer.from([0x01, 0x02, 0x03])
@@ -67,13 +83,46 @@ describe('easy-buffer', () => {
 
   test('read (out of bounds)', () => {
     expect(() =>
+      new BufferReader(Buffer.alloc(0)).read({ type: 'Int8' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
       new BufferReader(Buffer.alloc(0)).read({ type: 'UInt8' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(1)).read({ type: 'Int16LE' })
     ).toThrowError('Length out of bounds.');
     expect(() =>
       new BufferReader(Buffer.alloc(1)).read({ type: 'UInt16LE' })
     ).toThrowError('Length out of bounds.');
     expect(() =>
+      new BufferReader(Buffer.alloc(1)).read({ type: 'Int16BE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(1)).read({ type: 'UInt16BE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(3)).read({ type: 'Int32LE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
       new BufferReader(Buffer.alloc(3)).read({ type: 'UInt32LE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(3)).read({ type: 'Int32BE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(3)).read({ type: 'UInt32BE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(3)).read({ type: 'FloatLE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(3)).read({ type: 'FloatBE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(7)).read({ type: 'DoubleLE' })
+    ).toThrowError('Length out of bounds.');
+    expect(() =>
+      new BufferReader(Buffer.alloc(7)).read({ type: 'DoubleBE' })
     ).toThrowError('Length out of bounds.');
     expect(() =>
       new BufferReader(Buffer.from('cool')).read({ type: 'String', length: 5 })

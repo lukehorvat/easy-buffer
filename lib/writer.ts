@@ -80,6 +80,26 @@ export class BufferWriter {
           buffer.writeUInt32BE(writable.value);
           return buffer;
         }
+        case 'FloatLE': {
+          const buffer = Buffer.alloc(4);
+          buffer.writeFloatLE(writable.value);
+          return buffer;
+        }
+        case 'FloatBE': {
+          const buffer = Buffer.alloc(4);
+          buffer.writeFloatBE(writable.value);
+          return buffer;
+        }
+        case 'DoubleLE': {
+          const buffer = Buffer.alloc(8);
+          buffer.writeDoubleLE(writable.value);
+          return buffer;
+        }
+        case 'DoubleBE': {
+          const buffer = Buffer.alloc(8);
+          buffer.writeDoubleBE(writable.value);
+          return buffer;
+        }
         case 'String': {
           return Buffer.from(writable.value, writable.encoding);
         }

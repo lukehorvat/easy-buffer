@@ -48,6 +48,22 @@ export type Bufferable =
       value: number;
     }
   | {
+      type: 'FloatLE';
+      value: number;
+    }
+  | {
+      type: 'FloatBE';
+      value: number;
+    }
+  | {
+      type: 'DoubleLE';
+      value: number;
+    }
+  | {
+      type: 'DoubleBE';
+      value: number;
+    }
+  | {
       type: 'String';
       value: string;
       encoding?: BufferEncoding;

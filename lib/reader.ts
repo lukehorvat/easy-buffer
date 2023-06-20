@@ -140,6 +140,50 @@ export class BufferReader {
             length,
           };
         }
+        case 'FloatLE': {
+          const length = 4;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readFloatLE(),
+            length,
+          };
+        }
+        case 'FloatBE': {
+          const length = 4;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readFloatBE(),
+            length,
+          };
+        }
+        case 'DoubleLE': {
+          const length = 8;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readDoubleLE(),
+            length,
+          };
+        }
+        case 'DoubleBE': {
+          const length = 8;
+          if (length > this.bufferRemaining().length) {
+            throw new Error('Length out of bounds.');
+          }
+
+          return {
+            value: this.bufferRemaining().readDoubleBE(),
+            length,
+          };
+        }
         case 'String': {
           if ((readable.length ?? 0) > this.bufferRemaining().length) {
             throw new Error('Length out of bounds.');

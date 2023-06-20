@@ -107,7 +107,7 @@ Example:
 
 ```js
 // move 2 bytes ahead and read
-const a = reader.offset(2).read({ type: 'Int32BE' });
+const a = reader.offset(2).read({ type: 'DoubleBE' });
 
 // move 2 bytes back and read
 const b = reader.offset(-2).read({ type: 'String' });
@@ -188,7 +188,7 @@ Example:
 
 ```js
 // move 2 bytes ahead and write
-writer.offset(2).write({ type: 'UInt32LE', value: 123 });
+writer.offset(2).write({ type: 'FloatLE', value: 123.45 });
 
 // move 2 bytes back and write
 writer.offset(-2).write({ type: 'StringNT', value: 'cool', encoding: 'hex' });
@@ -257,6 +257,22 @@ A signed, big-endian 32-bit integer.
 #### { type: 'UInt32BE', value: number }
 
 An unsigned, big-endian 32-bit integer.
+
+#### { type: 'FloatLE', value: number }
+
+A little-endian 32-bit float.
+
+#### { type: 'FloatBE', value: number }
+
+A big-endian 32-bit float.
+
+#### { type: 'DoubleLE', value: number }
+
+A little-endian 64-bit double.
+
+#### { type: 'DoubleBE', value: number }
+
+A big-endian 64-bit double.
 
 #### { type: 'String', value: string, encoding?: [BufferEncoding](https://nodejs.org/api/buffer.html#buffers-and-character-encodings), length?: number }
 
