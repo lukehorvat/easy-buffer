@@ -1,4 +1,4 @@
-# easy-buffer [![npm version](http://img.shields.io/npm/v/easy-buffer.svg?style=flat-square)](https://www.npmjs.org/package/easy-buffer) [![build status](https://img.shields.io/github/actions/workflow/status/lukehorvat/easy-buffer/build.yml?style=flat-square)](https://github.com/lukehorvat/easy-buffer/actions/workflows/build.yml)
+# easy-buffer [![npm version](https://img.shields.io/npm/v/easy-buffer.svg?style=flat-square)](https://www.npmjs.com/package/easy-buffer)
 
 Easily read and write Node.js buffers. TypeScript and JavaScript supported!
 
@@ -14,7 +14,7 @@ Yes, yet another [Buffer](https://nodejs.org/api/buffer.html) wrapper library. U
 Install the package via npm:
 
 ```sh
-$ npm install easy-buffer
+npm install easy-buffer
 ```
 
 ## Usage
